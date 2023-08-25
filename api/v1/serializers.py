@@ -3,26 +3,43 @@ from rest_framework import serializers
 from core import models
 
 
-class SingerSerializer(serializers.ModelSerializer):
+class SingerListSerializer(serializers.ModelSerializer):
+    """Сериализатор для списка исполнителей"""
     class Meta:
         model = models.Performence
         fields = ('id', 'name')
 
 
-class SingerObjectSerializer(SingerSerializer):
-    albums = serializers.SerializerMethodField
+class AlbumSimpleSerializer(serializers.Serializer):
+    """Сериализатор для поля albums в SingerSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    release_year = serializers.IntegerField()
+
+
+class SingerSerializer(SingerListSerializer):
+    """Сериализатор для одиночного отображения исполнителя"""
+    albums = AlbumSimpleSerializer(many=True)
 
     class Meta:
         model = models.Performence
         fields = ('id', 'name', 'albums')
 
-    def get_albums(self, obj):
-        albums = obj.albums.all()
-        serializer = AlbumSimpleSerializer(albums, many=True)
-        return serializer.data
+
+class SongSimpleSerializer(serializers.Serializer):
+    """Сериализатор для поля songs в AlbumSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    order_num = serializers.IntegerField()
 
 
-class AlbumSimpleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Album
-        fields = ('id', 'name', 'release_year')
+class AlbumSerializer(AlbumSimpleSerializer):
+    """Сериализатор для альбомов"""
+    singer = serializers.CharField(source='singer.name')
+    songs = SongSimpleSerializer(many=True, required=False)
+
+
+class SongSerializer(SongSimpleSerializer):
+    """Сериализатор для песен"""
+    album = serializers.CharField(source='album.name')
+    singer = serializers.CharField(source='album.singer.name')
