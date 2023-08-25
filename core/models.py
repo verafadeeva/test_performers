@@ -24,6 +24,12 @@ class Album(models.Model):
     )
     release_year = models.PositiveSmallIntegerField()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('name', 'singer'),
+                                    name='unique_album_singer')
+        ]
+
     def clean(self):
         cur_year = timezone.now().year
         if self.release_year > cur_year:
@@ -42,6 +48,12 @@ class Song(models.Model):
         on_delete=models.CASCADE,
         related_name='songs',
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('name', 'order_num', 'album'),
+                                    name='unique_song_in_album')
+        ]
 
     def __str__(self) -> str:
         return f'{self.order_num}.{self.name} - {self.album.name}'
