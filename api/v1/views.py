@@ -30,9 +30,9 @@ class SingerViewSet(mixins.ListModelMixin,
         instance = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        singer = services.singer_update(album=instance,
-                                        **serializer.validated_data,
-                                        )
+        singer = services.singer_update(
+            singer=instance,
+            **serializer.validated_data)
 
         return Response(data={'id': singer.id, 'name': singer.name},
                         status=status.HTTP_200_OK,
