@@ -13,7 +13,7 @@ services:
     env_file: .env
     volumes:
       - static:/static
-    command: sh -c "python manage.py migrate && python manage.py collectstatic -c --noinput && cp -r /app/collected_static/. /static/ && gunicorn --bind 0.0.0.0:8000 performers.wsgi"
+    command: sh -c "python manage.py migrate && python manage.py collectstatic -c --noinput && cp -r /app/collected_static/. /static/ && python manage.py loaddata ./data.json && gunicorn --bind 0.0.0.0:8000 performers.wsgi"
     restart: unless-stopped
 
   nginx:
