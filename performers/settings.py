@@ -29,7 +29,7 @@ SECRET_KEY = getenv('SECRET_KEY', default='secretkey')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(getenv('DEBUG', default=False))
 
-ALLOWED_HOSTS = getenv('ALLOWED_HOSTS').split()
+ALLOWED_HOSTS = getenv('ALLOWED_HOSTS', default='localhost').split()
 
 
 # Application definition
