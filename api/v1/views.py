@@ -1,9 +1,10 @@
-from rest_framework import mixins, viewsets
-from rest_framework import status
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.response import Response
+from django_filters import rest_framework
 
 from core import models
 from api.v1 import serializers, services
+from api.v1.filters import SongFilter
 
 
 class SingerViewSet(mixins.ListModelMixin,
@@ -12,6 +13,8 @@ class SingerViewSet(mixins.ListModelMixin,
     """Viewset для отображения исполнителей"""
     queryset = models.Performence.objects.all().prefetch_related('albums')
     serializer_class = serializers.SingerListSerializer
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('^name', )
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -52,6 +55,8 @@ class AlbumViewSet(mixins.ListModelMixin,
     queryset = models.Album.objects.all().select_related(
         'singer').prefetch_related('songs')
     serializer_class = serializers.AlbumSerializer
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('^name', )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -84,3 +89,8 @@ class SongViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Song.objects.all().select_related(
         'album').select_related('album__singer')
     serializer_class = serializers.SongSerializer
+    filter_backends = (filters.SearchFilter,
+                       rest_framework.DjangoFilterBackend,
+                       )
+    search_fields = ('^name', )
+    filterset_class = SongFilter
